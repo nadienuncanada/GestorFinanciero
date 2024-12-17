@@ -41,11 +41,11 @@ function CardCarousel() {
 				Nuestros Servicios
 			</h2>
 			<Swiper
-				slidesPerView={1}
-				spaceBetween={20}
+				slidesPerView={1.5}
+				spaceBetween={10}
 				breakpoints={{
-					640: { slidesPerView: 2 },
-					1024: { slidesPerView: 3 },
+					640: { slidesPerView: 2.5 },
+					1024: { slidesPerView: 3.5 },
 				}}
 				navigation={true}
 				pagination={{ clickable: true }}

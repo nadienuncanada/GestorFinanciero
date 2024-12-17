@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// import './index.css'; // Aquí puedes poner tus estilos globales (si los tienes)
 import App from './App'; // El componente principal de tu aplicación
 import './index.css';
 

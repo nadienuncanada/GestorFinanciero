@@ -23,7 +23,7 @@ function RegisterForm({ onSubmit }) {
 			return;
 		}
 
-		onSubmit(formData); // Llama a la función onSubmit pasada como prop
+		onSubmit({ email: formData.email, password: formData.password }); // Llama a la función onSubmit pasada como prop
 	};
 
 	return (

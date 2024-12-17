@@ -7,16 +7,18 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from .schemas import UserCreate, UserResponse
 import os
+from fastapi.middleware.cors import CORSMiddleware
+
 
 load_dotenv()
 
 # Configuración inicial
-DATABASE_URL: str = os.getenv("DATABASE_URL")  # Cambia a PostgreSQL para producción
-SECRET_KEY: str = os.getenv("SECRET_URL")  # Usa una más segura en producción
+DATABASE_URL = os.getenv("DATABASE_URL")  # Cambia a PostgreSQL para producción
+SECRET_KEY = os.getenv("SECRET_KEY")  # Asegúrate de que el nombre de la variable sea correcto
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 # Base de datos
 engine = create_engine(DATABASE_URL)
 Base = declarative_base()
@@ -59,22 +61,42 @@ def get_db():
 # FastAPI app
 app = FastAPI()
 
+# Habilitar CORS
+origins = [
+    "http://localhost:3000",  # Reemplaza con el origen de tu frontend
+    # Agrega otros orígenes si es necesario
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.post("/register")
-def register(username: str, password: str, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.username == username).first()
+async def register(recibed:UserCreate, db: Session = Depends(get_db)):
+    #Verifica si el usuario ya existe
+    user = db.query(User).filter(User.username == recibed.email).first()
     if user:
-        raise HTTPException(status_code=400, detail="Username already exists")
-    hashed_password = get_password_hash(password)
-    new_user = User(username=username, hashed_password=hashed_password)
+        raise HTTPException(status_code=400, detail="El mail utilizado ya se encuentra registrado")
+    #Crea nuevo usuario
+    hashed_password = get_password_hash(recibed.password)
+    new_user = User(username=recibed.email, hashed_password=hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"message": "User created successfully"}
+    return {"Registro exitoso"}
+    # return UserResponse(id=new_user.id, email=new_user.username)
 
 @app.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        raise HTTPException(status_code=400, detail="Datos incorrectos")
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

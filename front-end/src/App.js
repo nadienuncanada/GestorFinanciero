@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import RegisterPage from './pages/RegisterPage'; // Importa tu página de registro
 import LoginPage from './pages/LoginPage'; // Importa tu página de login
 import HomePage from './pages/HomePage'; // Importa tu página de inicio
+import DashboardPage from './pages/DashboardPage';
 function App() {
 	return (
 		<Router>
@@ -21,6 +22,10 @@ function App() {
 				<Route
 					path='/'
 					element={<HomePage />}
+				/>
+				<Route
+					path='/dashboard'
+					element={<DashboardPage />}
 				/>
 			</Routes>
 		</Router>
